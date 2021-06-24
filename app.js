@@ -5,10 +5,7 @@ var convert = require('xml2json');
 
 
 
-
 var data = "";
-var testing="";
-var loopingvar =[];
 var finalList=[];
 
 axios({
