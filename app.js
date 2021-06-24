@@ -16,23 +16,9 @@ axios({
     url: 'https://scsanctions.un.org/resources/xml/en/consolidated.xml'
     })
     .then(function (response) {
-       // console.log(response.data);
         data = response.data;
-       // console.log(convert.xml2js(data,{compact:true}));
-        // testing = convert.xml2js(data,{compact:true});
-        // loopingvar = testing["CONSOLIDATED_LIST"]["INDIVIDUALS"]["INDIVIDUAL"];
-        // //console.log(loopingvar);
-        // //loopingvar.forEach(element=>console.log(element));
-        // for (element of loopingvar){
-        //     console.log(element);
-        //     if (element ==  "FIRST_NAME"){
-        //         finalList+=testing["CONSOLIDATED_LIST"]["INDIVIDUALS"]["INDIVIDUAL"]["FIRST_NAME"]["_text"];
-                
-        //     }
-        // }
-        //console.log(finalList);
+       
         var result = JSON.parse(convert.toJson(data));
-        //console.log(result);
 
         var filteredList = result.CONSOLIDATED_LIST.INDIVIDUALS.INDIVIDUAL;
         console.log(filteredList);
