@@ -2,7 +2,8 @@
   "dependencies": {
     "axios": "^0.21.1",
     "express": "^4.17.1",
-    "xml-js": "^1.6.11",
+    "node-xmpp": "^1.1.0",
+    "xml-parser": "^1.2.1",
     "xml2json": "^0.12.0"
   }
 }
