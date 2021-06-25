@@ -1,7 +1,7 @@
 var express = require("express");
 var app = express();
 var axios = require('axios');
-var convert = require('xml2json');
+var xmlParser = require('xml2json');
 
 var data = "";
 var finalList=[];
@@ -10,14 +10,37 @@ let filteredData = [];
 
 const listLink = 'https://laws-lois.justice.gc.ca/eng/XML/SOR-2017-233.xml';
 
+let regulationFilteredData = [];
+
+const regulationListLink = "https://laws-lois.justice.gc.ca/eng/XML/SOR-2002-284.xml"
+//GET Regulation List 
+axios({
+    method: 'get',
+    url: regulationListLink
+    })
+    .then(function (response) {
+        
+        let fetchData =  JSON.parse (xmlParser.toJson (response.data)) 
+        //console.log(response);
+        let filteredList = fetchData['Regulation']['Body']['Section'][0]['List']['Item'];
+
+        for(let i=0;i<filteredList.length;i++){
+            let temp = filteredList[i]['Text'];
+            let text = temp.toString();
+            let group_name = text.split(' (also')[0];
+            let description = text.split(' (also')[1];
+            regulationFilteredData[i]={"name":group_name,"description":'(also ' + description,"date":filteredList[0]['lims:inforce-start-date']};
+        }
+    });
+
 axios({
     method: 'get',
     url: 'https://scsanctions.un.org/resources/xml/en/consolidated.xml'
     })
     .then(function (response) {
         data = response.data;
-       
-        var result = JSON.parse(convert.toJson(data));
+    
+        var result = JSON.parse(xmlParser.toJson(data));
 
         var filteredList = result.CONSOLIDATED_LIST.INDIVIDUALS.INDIVIDUAL;
         //console.log(filteredList);
@@ -35,7 +58,7 @@ axios({
                 "source": "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
             };
         }
-    });
+});
 
 axios({
     method: 'get',
@@ -66,10 +89,11 @@ axios({
 app.get("/", (req, res) => {
 
     if (!res.headersSent) res.status(200).send({ 
-        jSON_list: [...filteredData, ...finalList]
+        jSON_list: [...filteredData, ...finalList, ...regulationFilteredData]
     })
 })
 
+//To start server
 app.listen(3000, process.env.IP, function () {
     console.log("Server has started.");
 });
