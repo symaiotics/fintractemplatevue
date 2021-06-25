@@ -6,9 +6,27 @@ var xmlParser = require('xml2json');
 var data = "";
 var finalList=[];
 
+let lteListData= []
 let filteredData = [];
 
 const listLink = 'https://laws-lois.justice.gc.ca/eng/XML/SOR-2017-233.xml';
+
+const lteListLink = 'https://www.publicsafety.gc.ca/cnt/_xml/lstd-ntts-eng.xml';
+
+
+const cleanUpLTEList = (list)=> {
+    return list.map ((element)=>{return {"name":element.title, "date":element.published, "link": lteListLink }} )
+}
+//GET LTE List XML
+axios({
+    method: 'get',
+    url: lteListLink
+    })
+    .then(function (response) {
+        let initialList = JSON.parse ( xmlParser.toJson (  response.data ) ).feed.entry;
+        lteListData = cleanUpLTEList (initialList) //returns cleaned-up version of LTE List 
+
+    });
 
 let regulationFilteredData = [];
 
@@ -74,7 +92,6 @@ axios({
 
         //  console.log(result);
 
-
             var filteredList = result.Regulation.Schedule[0].List.Item;
 
             for (i=0; i<filteredList.length; i++){
@@ -89,7 +106,7 @@ axios({
 app.get("/", (req, res) => {
 
     if (!res.headersSent) res.status(200).send({ 
-        jSON_list: [...filteredData, ...finalList, ...regulationFilteredData]
+        jSON_list: [...filteredData, ...finalList, ...regulationFilteredData, ...lteListData]
     })
 })
 
