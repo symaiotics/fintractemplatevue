@@ -18,7 +18,7 @@ axios({
         var result = JSON.parse(convert.toJson(data));
 
         var filteredList = result.CONSOLIDATED_LIST.INDIVIDUALS.INDIVIDUAL;
-        console.log(filteredList);
+        //console.log(filteredList);
 
         for(i=0; i<filteredList.length;i++){
             var name = filteredList[i].FIRST_NAME + " " + filteredList[i].SECOND_NAME + " " + filteredList[i].THIRD_NAME;
