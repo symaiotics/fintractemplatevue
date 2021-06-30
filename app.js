@@ -2,6 +2,8 @@ var express = require("express");
 var app = express();
 var axios = require('axios');
 var xmlParser = require('xml2json');
+var faker = require('faker');
+faker.locale = "en_CA";
 
 var data = "";
 var finalList=[];
@@ -14,7 +16,15 @@ const insertDataIntoMasterList = (data) => {
     for (elem of data["data-set"].record) {
         var entity = { name: elem.Entity ? elem.Entity : elem.GivenName +  " " + elem.LastName,
                        date: elem.DateOfBirth,
-                       source: "https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/consolidated-consolide.aspx?lang=eng"};
+                       link : "https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/consolidated-consolide.aspx?lang=eng",
+                       "address": {
+                        streetNum: faker.datatype.number(),
+                        street: faker.address.streetName(),
+                        city: faker.address.cityName(),
+                        prov: faker.address.state(),
+                        postal: faker.address.zipCodeByState()
+                    },
+                };
 
         masterListJSON.JSON_list.push(entity);
     }
@@ -38,7 +48,13 @@ const lteListLink = 'https://www.publicsafety.gc.ca/cnt/_xml/lstd-ntts-eng.xml';
 
 
 const cleanUpLTEList = (list)=> {
-    return list.map ((element)=>{return {"name":element.title, "date":element.published, "link": lteListLink }} )
+    return list.map ((element)=>{return {"name":element.title, "date":element.published, "link": lteListLink , "address": {
+        streetNum: faker.datatype.number(),
+        street: faker.address.streetName(),
+        city: faker.address.cityName(),
+        prov: faker.address.state(),
+        postal: faker.address.zipCodeByState()
+    },}} )
 }
 //GET LTE List XML
 axios({
@@ -70,7 +86,13 @@ axios({
             let text = temp.toString();
             let group_name = text.split(' (also')[0];
             let description = text.split(' (also')[1];
-            regulationFilteredData[i]={"name":group_name,"description":'(also ' + description,"date":filteredList[0]['lims:inforce-start-date']};
+            regulationFilteredData[i]={"name":group_name,"date":filteredList[0]['lims:inforce-start-date'],"link": regulationListLink,"address": {
+                streetNum: faker.datatype.number(),
+                street: faker.address.streetName(),
+                city: faker.address.cityName(),
+                prov: faker.address.state(),
+                postal: faker.address.zipCodeByState()
+            },};
         }
     });
 
@@ -92,11 +114,28 @@ axios({
             var dob = filteredList[i].INDIVIDUAL_DATE_OF_BIRTH.DATE;
             var address = filteredList[i].INDIVIDUAL_ADDRESS.COUNTRY;
             finalList[i] = {
-                "name": name, 
-                "documentType":document, 
-                "dateOfBirth": dob,
-                "countryAddress":address,
-                "source": "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
+                "name": name,  
+                "date": dob,
+                "link": "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
+                "address": {
+                    streetNum: faker.datatype.number(),
+                    street: faker.address.streetName(),
+                    city: faker.address.cityName(),
+                    prov: faker.address.state(),
+                    postal: faker.address.zipCodeByState()
+                },
+                "id":{
+                    idType: "Driver's License",
+                    idNumber:faker.finance.routingNumber() ,
+                    idJuristiction: faker.address.state()
+                },
+            "accountInfo":{
+                locale : "Domestic",
+                institution : "TD",
+                transitNum : faker.finance.routingNumber(),
+                accountNum : faker.finance.account(),
+                status : "Active"
+            }
             };
         }
 });
@@ -122,17 +161,38 @@ axios({
                 var s = filteredList[i].Text;
                 s = s.split(' (')[0];
 
-                filteredData[i] = {"name":s, "date":filteredList[i]['lims:inforce-start-date'], "link": listLink };
+                filteredData[i] = {"name":s, "date":filteredList[i]['lims:inforce-start-date'], "link": listLink ,"address": {
+                    streetNum: faker.datatype.number(),
+                    street: faker.address.streetName(),
+                    city: faker.address.cityName(),
+                    prov: faker.address.state(),
+                    postal: faker.address.zipCodeByState()
+                },
+            "id":{
+                idType: "Driver's License",
+                idNumber:faker.finance.routingNumber() ,
+                idJuristiction: faker.address.state()
+            },
+        "accountInfo":{
+            locale : "Domestic",
+            institution : "TD",
+            transitNum : faker.finance.routingNumber(),
+            accountNum : faker.finance.account(),
+            status : "Active"
+        }
+    
+    
+    };
             }
         });
-
+    
 app.get("/", (req, res) => {
 
-    if (!res.headersSent) res.status(200).send({ 
-        jSON_list: [...filteredData, ...finalList, ...regulationFilteredData, ...lteListData, ...masterListJSON.JSON_list]
+    if (!res.headersSent) res.status(200).send({
+        jSON_list : [...filteredData, ...finalList, ...regulationFilteredData, ...lteListData, ...masterListJSON.JSON_list] 
     })
-})
 
+})
 //To start server
 app.listen(3000, process.env.IP, function () {
     console.log("Server has started.");
