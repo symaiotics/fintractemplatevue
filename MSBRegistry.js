@@ -10,6 +10,12 @@ fs = require("fs");
 
 //https://open.canada.ca/data/en/dataset/8beacccf-3b54-4d12-9cf7-24e2ada90a83
 
+
+/***
+ * extractName function
+ * Takes in msbObj(current MSB JSON object), MsbLegalBusinessName path, MsbLegalIndividualName path
+ * Depends on name type, return the full name
+ ***/
 const extractName = (
   msbObj,
   businessNameProperty = "MsbLegalBusinessName",
@@ -31,6 +37,13 @@ const extractName = (
   }
 };
 
+
+/***
+ * extractLocation function
+ * Takes in msbObj(current MSB JSON object)
+ * return the array or the single location information
+ * or return undfined if no location information found
+ ***/
 const extractLocation = (msbObj) => {
   let locationInfo = msbObj.MsbLocationInformation;
   if (locationInfo) {
@@ -42,6 +55,14 @@ const extractLocation = (msbObj) => {
   } else return undefined;
 };
 
+
+/***
+ * extractAgentLocation function (same thing as extractLocation function)
+ * Takes in agentObj(current MSB JSON object)
+ * return the array or the single location information from agent tag
+ * or return undfined if no agent location information found
+ * Note: sequence number is removed
+ ***/
 const extractAgentLocation = (agentObj) => {
   let locationInfo = agentObj.AgentLocation;
   if (locationInfo) {
@@ -58,6 +79,16 @@ const extractAgentLocation = (agentObj) => {
 };
 
 
+/***
+ * extractAgents function 
+ * Takes in agentObj(current MSB JSON object)
+ * return the array or the single agent from agent tag
+ * or return undefined if no agent information found
+ * Note: sequence number is removed
+ * calls extractName and extractAgentLocation for extracting those information
+ * rest of the info is extracted by the json link
+ * returns full name, location, BusinessActivity, phone number
+ ***/
 const extractAgents = (msbObj) => {
   let agentInfo = msbObj.MsbAgent;
   if (agentInfo) {
@@ -91,7 +122,11 @@ const extractAgents = (msbObj) => {
   } else return undefined;
 };
 
-
+/***
+ * readFile function
+ * reads MsbRegistryPublicDataFile.xml into JSON, stored in testMSB field
+ * map all element with each needed fields
+ ***/
 fs.readFile("./assets/MsbRegistryPublicDataFile.xml", function (err, data) {
   let msbJSON = JSON.parse(parser.toJson(data));
   let testMSB = (msbJSON = msbJSON["MsbRegistryXmlFile"]["MsbInformation"].map(
@@ -120,6 +155,11 @@ fs.readFile("./assets/MsbRegistryPublicDataFile.xml", function (err, data) {
   //REMOVE COMMENT IF YOU ALSO WANT TO LOG THE LIST TO TERMINAL/CONSOLE
   //console.log(testMSB.forEach((elem) => console.log(elem)));
   
+
+/***
+ * writeFile function
+ * prints the result testMSB JSON into "./assets/MSBRegistry.json"
+ ***/
   fs.writeFile(
     "./assets/MSBRegistry.json",
     JSON.stringify(testMSB),
