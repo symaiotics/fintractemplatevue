@@ -1,5 +1,5 @@
 var parser = require("xml2json");
-fs = require("fs");
+fs = require("fs").promises;
 
 //TEST CASES
 //M08431798 no agent
@@ -9,7 +9,6 @@ fs = require("fs");
 //M08434209 multi agents && multi agent locations at agent number 7(BCU Financial)
 
 //https://open.canada.ca/data/en/dataset/8beacccf-3b54-4d12-9cf7-24e2ada90a83
-
 
 /***
  * extractName function
@@ -32,11 +31,12 @@ const extractName = (
     //Since it is not a Business, the Individual GivenName, MiddleName(if provided) and Surname are extracted
     let individualName = msbObj[individualNameProperty];
     return {
-      fullName: `${individualName.GivenName} ${individualName.MiddleName ? individualName.MiddleName : ""} ${individualName.Surname}`,
+      fullName: `${individualName.GivenName} ${
+        individualName.MiddleName ? individualName.MiddleName : ""
+      } ${individualName.Surname}`,
     };
   }
 };
-
 
 /***
  * extractLocation function
@@ -54,7 +54,6 @@ const extractLocation = (msbObj) => {
     }
   } else return undefined;
 };
-
 
 /***
  * extractAgentLocation function (same thing as extractLocation function)
@@ -78,9 +77,8 @@ const extractAgentLocation = (agentObj) => {
   } else return undefined;
 };
 
-
 /***
- * extractAgents function 
+ * extractAgents function
  * Takes in agentObj(current MSB JSON object)
  * return the array or the single agent from agent tag
  * or return undefined if no agent information found
@@ -102,7 +100,7 @@ const extractAgents = (msbObj) => {
           ),
           agentLocation: extractAgentLocation(agent),
           agentBusinessActivity: agent.AgentBusinessActivity,
-          agentPhone: agent.AgentPhone.PhoneNumber
+          agentPhone: agent.AgentPhone.PhoneNumber,
         };
       });
     } else {
@@ -115,21 +113,42 @@ const extractAgents = (msbObj) => {
           ),
           agentLocation: extractAgentLocation(agentInfo),
           agentBusinessActivity: agentInfo.AgentBusinessActivity,
-          agentPhone:agentInfo.AgentPhone.PhoneNumber
+          agentPhone: agentInfo.AgentPhone.PhoneNumber,
         },
       ];
     }
   } else return undefined;
 };
 
-/***
- * readFile function
- * reads MsbRegistryPublicDataFile.xml into JSON, stored in testMSB field
- * map all element with each needed fields
- ***/
-fs.readFile("./assets/MsbRegistryPublicDataFile.xml", function (err, data) {
+/**
+ * 
+ * @param {*} data 
+ * @param {String} dest 
+ * writeFile function
+ * prints the result testMSB JSON into "./assets/MSBRegistry.json"
+ */
+const writeToFile = (data, dest = "./assets/MSBRegistry.json") => {
+  console.log(`Writing MSBRegistry->JSON to...\n${dest}`);
+  fs.writeFile(dest, data, function (err, result) {
+    if (err) console.log("error", err);
+  });
+};
+
+
+/**
+ * 
+ * @param {Boolean} writeFlag 
+ * @param {String} filePath 
+ * @returns [{JSONified  and cleaned MSBRegistry list}]
+ * reads MsbRegistryPublicDataFile.xml into JSON, intiates some clean-up and returns JSONified MSBRegistry List
+ */
+const readFromFile = async (
+  writeFlag = false,
+  filePath = "./assets/MsbRegistryPublicDataFile.xml"
+) => {
+  let data = await fs.readFile(filePath);
   let msbJSON = JSON.parse(parser.toJson(data));
-  let testMSB = (msbJSON = msbJSON["MsbRegistryXmlFile"]["MsbInformation"].map(
+  let finalMSBJSON = msbJSON["MsbRegistryXmlFile"]["MsbInformation"].map(
     (elem) => {
       return {
         registrationNumber: elem.MsbRegistrationNumber,
@@ -148,24 +167,13 @@ fs.readFile("./assets/MsbRegistryPublicDataFile.xml", function (err, data) {
         location: extractLocation(elem),
         agents: extractAgents(elem),
       };
-      
-    }
-  ));
-
-  //REMOVE COMMENT IF YOU ALSO WANT TO LOG THE LIST TO TERMINAL/CONSOLE
-  //console.log(testMSB.forEach((elem) => console.log(elem)));
-  
-
-/***
- * writeFile function
- * prints the result testMSB JSON into "./assets/MSBRegistry.json"
- ***/
-  fs.writeFile(
-    "./assets/MSBRegistry.json",
-    JSON.stringify(testMSB),
-    function (err, result) {
-      if (err) console.log("error", err);
     }
   );
-  
-});
+  if (writeFlag) {
+    writeToFile(JSON.stringify(finalMSBJSON));
+  }
+  return finalMSBJSON;
+};
+
+
+exports.readFromFile = readFromFile

@@ -1,3 +1,4 @@
+let readFromFile = require ("./MSBRegistry").readFromFile
 var express = require("express");
 var app = express();
 
@@ -390,6 +391,30 @@ app.get("/deleteMSBEntity", (req, res) => {
         res.send("Deleted MSB Entity!");
     });
 })
+
+app.get ("/msb", async (req, res)=> {
+    let limit =  req.query.limit;
+    let msbData = await readFromFile ()
+    limit = limit || msbData.length //if limit is provided then limit is initiated else its the length of the MSBRegistry
+
+    if (!res.headersSent) res.status(200).send({ 
+        msb_data: msbData.slice (0,parseInt (limit))
+    })
+
+}  )
+
+
+app.get ("/msb", async (req, res)=> {
+    let limit =  req.query.limit;
+    let msbData = await readFromFile ()
+    limit = limit || msbData.length //if limit is provided then limit is initiated else its the length of the MSBRegistry
+
+    if (!res.headersSent) res.status(200).send({ 
+        msb_data: msbData.slice (0,parseInt (limit))
+    })
+
+}  )
+
 
 //To start server
 app.listen(3000, process.env.IP, function () {
