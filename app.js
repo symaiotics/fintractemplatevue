@@ -5,30 +5,22 @@ var xmlParser = require('xml2json');
 var mongoose = require("mongoose");
 var faker = require('faker');
 
-faker.locale = "en_CA";
-
-//Schemas
-var entitySchema = require("./schemas/testEntity").entitySchema;
-var MSBSchema = require("./schemas/MSBEntity").MSBSchema;
-var personSchema = require("./schemas/personEntity").personEntity;
-
-mongoose.connect('mongodb://localhost:27017/API_test', { useNewUrlParser: true, useUnifiedTopology: true }); 
-
-var data = "";
-
-var masterListJSON = {
-    JSON_list: []
-};
+mongoose.connect('mongodb://localhost:27017/API_test', { useNewUrlParser: true, useUnifiedTopology: true });
 
 // DB Models
-var Entity = mongoose.model("Entity", entitySchema);
 var MSB_Entity = mongoose.model("MSB_Entity", MSBSchema);
 var PersonEntity = mongoose.model("PersonEntity", personSchema);
 
 // Dummy data to be add/remove from db (TESTING)
-var newEntity;
 var newMSB_Entity;
 var newPersonEntity;
+
+var data = "";
+var finalList=[];
+
+var masterListJSON = {
+    JSON_list: []
+};
 
 const insertDataIntoMasterList = (data) => {
     for (elem of data["data-set"].record) {
@@ -49,30 +41,116 @@ axios({
         insertDataIntoMasterList(data);
     });
 
-app.get("/", (req, res) => {
+let lteListData= []
+let filteredData = [];
 
+const listLink = 'https://laws-lois.justice.gc.ca/eng/XML/SOR-2017-233.xml';
+
+const lteListLink = 'https://www.publicsafety.gc.ca/cnt/_xml/lstd-ntts-eng.xml';
+
+
+const cleanUpLTEList = (list)=> {
+    return list.map ((element)=>{return {"name":element.title, "date":element.published, "link": lteListLink }} )
+}
+//GET LTE List XML
+axios({
+    method: 'get',
+    url: lteListLink
+    })
+    .then(function (response) {
+        let initialList = JSON.parse ( xmlParser.toJson (  response.data ) ).feed.entry;
+        lteListData = cleanUpLTEList (initialList) //returns cleaned-up version of LTE List 
+
+    });
+
+let regulationFilteredData = [];
+
+const regulationListLink = "https://laws-lois.justice.gc.ca/eng/XML/SOR-2002-284.xml"
+//GET Regulation List 
+axios({
+    method: 'get',
+    url: regulationListLink
+    })
+    .then(function (response) {
+        
+        let fetchData =  JSON.parse (xmlParser.toJson (response.data)) 
+        //console.log(response);
+        let filteredList = fetchData['Regulation']['Body']['Section'][0]['List']['Item'];
+
+        for(let i=0;i<filteredList.length;i++){
+            let temp = filteredList[i]['Text'];
+            let text = temp.toString();
+            let group_name = text.split(' (also')[0];
+            let description = text.split(' (also')[1];
+            regulationFilteredData[i]={"name":group_name,"description":'(also ' + description,"date":filteredList[0]['lims:inforce-start-date']};
+        }
+    });
+
+axios({
+    method: 'get',
+    url: 'https://scsanctions.un.org/resources/xml/en/consolidated.xml'
+    })
+    .then(function (response) {
+        data = response.data;
+    
+        var result = JSON.parse(xmlParser.toJson(data));
+
+        var filteredList = result.CONSOLIDATED_LIST.INDIVIDUALS.INDIVIDUAL;
+        //console.log(filteredList);
+
+        for(i=0; i<filteredList.length;i++){
+            var name = filteredList[i].FIRST_NAME + " " + filteredList[i].SECOND_NAME + " " + filteredList[i].THIRD_NAME;
+            var document = filteredList[i].INDIVIDUAL_DOCUMENT.TYPE_OF_DOCUMENT + " :" + filteredList[i].INDIVIDUAL_DOCUMENT.NUMBER;
+            var dob = filteredList[i].INDIVIDUAL_DATE_OF_BIRTH.DATE;
+            var address = filteredList[i].INDIVIDUAL_ADDRESS.COUNTRY;
+            finalList[i] = {
+                "name": name, 
+                "documentType":document, 
+                "dateOfBirth": dob,
+                "countryAddress":address,
+                "source": "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
+            };
+        }
+});
+
+axios({
+    method: 'get',
+    url: listLink,
+        })
+        .then(function (response) {
+
+            data = response.data;
+        
+        var xmlParser = require('xml2json');
+        var result = JSON.parse(xmlParser.toJson(data));
+        //var result = xmlParser.xml2json(data, {compact: false, spaces: 4});
+
+        //  console.log(result);
+
+            var filteredList = result.Regulation.Schedule[0].List.Item;
+
+            for (i=0; i<filteredList.length; i++){
+
+                var s = filteredList[i].Text;
+                s = s.split(' (')[0];
+
+                filteredData[i] = {"name":s, "date":filteredList[i]['lims:inforce-start-date'], "link": listLink };
+            }
+        });
+
+app.get("/", (req, res) => {
     if (!res.headersSent) res.status(200).send({ 
-        jSON_list: [masterListJSON.JSON_list]
+        jSON_list: [...filteredData, ...finalList, ...regulationFilteredData, ...lteListData, ...masterListJSON.JSON_list]
     })
 })
 
-app.get("/addTestEntity", (req, res) => {
-
-    newEntity = new Entity({
-        name: "John Smith",
-        date: "2021/01/01",
-        source: "www.google.ca"});
-
-    Entity.insertMany(newEntity, () => {
-        console.log("Added Test Entity!");
-    });
-
+app.get("/addPersonEntity", (req, res) => {
     newPersonEntity = new PersonEntity({
         name: "John Cena",
         date: "2021/02/02",
         link: "www.bing.com",
         address: {
-            streetNum: 13,
+            streetNum: "13",
             street: "Sunville Drive",
             city: "Ottawa",
             prov: "ON",
@@ -99,7 +177,6 @@ app.get("/addTestEntity", (req, res) => {
 })
 
 app.get("/addMSBEntity", (req, res) => {
-
     newMSB_Entity = new MSB_Entity({
         registrationNumber: "M08609375",
         businessName: "ACCU-RATE CORPORATION",
@@ -172,11 +249,7 @@ app.get("/addMSBEntity", (req, res) => {
     });
 })
 
-app.get("/deleteTestEntity", (req, res) => {
-    Entity.deleteOne({name: "John Smith"}, () => {
-        console.log("Deleted Entity!");
-    });
-
+app.get("/deletePersonEntity", (req, res) => {
     PersonEntity.deleteOne({name: "John Cena"}, () => {
         console.log("Deleted Person Entity!");
         res.send("Deleted Person Entity!");
