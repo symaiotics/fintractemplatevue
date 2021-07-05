@@ -137,6 +137,32 @@ app.get("/addMSBEntity", (req, res) => {
                 PostalZipCode: "K2B7H7",
                 AlphaCountryCode: "CA"
             }
+        ],
+        agents: [
+            {
+                fullName: "AMAL  WARSAME",
+                agentLocation: [
+                    {
+                        MainLocationIndicator: "1",
+                        StreetAddress: "407-357 HOSSMAN ST",
+                        CityName: "KITCHENER",
+                        AlphaProvinceCode: "ON",
+                        PostalZipCode: "N2M3N5",
+                        AlphaCountryCode: "CA"
+                    }
+                ],
+                agentBusinessActivity: [
+                    {
+                        ActivityDescriptionEnglish: "Foreign exchange dealing",
+                        ActivityDescriptionFrench: "Opérations de change"
+                    },
+                    {
+                        ActivityDescriptionEnglish: "Money transferring",
+                        ActivityDescriptionFrench: "Transfert de fonds"
+                    }
+                ],
+                agentPhone: "5195701082"
+            }
         ]
     });
 

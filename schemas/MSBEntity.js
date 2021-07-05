@@ -37,6 +37,32 @@ var MSBSchema = new mongoose.Schema({
             PostalZipCode: String,
             AlphaCountryCode: String
         }
+    ],
+    agents: [
+        {
+            fullName: String,
+            agentLocation: [
+                {
+                    MainLocationIndicator: String,
+                    StreetAddress: String,
+                    CityName: String,
+                    AlphaProvinceCode: String,
+                    PostalZipCode: String,
+                    AlphaCountryCode: String
+                }
+            ],
+            agentBusinessActivity: [
+                {
+                    ActivityDescriptionEnglish: String,
+                    ActivityDescriptionFrench: String
+                },
+                {
+                    ActivityDescriptionEnglish: String,
+                    ActivityDescriptionFrench: String
+                }
+            ],
+            agentPhone: String
+        }
     ]
 });
 
