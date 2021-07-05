@@ -25,6 +25,19 @@ const insertDataIntoMasterList = (data) => {
         prov: faker.address.state(),
         postal: faker.address.zipCodeByState(),
       },
+      id: {
+        idType: "Driver's License",
+        idNumber: faker.finance.routingNumber(),
+        idJuristiction: faker.address.state(),
+      },
+      accountInfo: {
+        locale: "Domestic",
+        institution: "TD",
+        transitNum: faker.finance.routingNumber(),
+        accountNum: faker.finance.account(),
+        status: "Active",
+      },
+      dateRange: "2020-2021"
     };
 
     masterListJSON.JSON_list.push(entity);
@@ -59,6 +72,19 @@ const cleanUpLTEList = (list) => {
         prov: faker.address.state(),
         postal: faker.address.zipCodeByState(),
       },
+      id: {
+        idType: "Driver's License",
+        idNumber: faker.finance.routingNumber(),
+        idJuristiction: faker.address.state(),
+      },
+      accountInfo: {
+        locale: "Domestic",
+        institution: "TD",
+        transitNum: faker.finance.routingNumber(),
+        accountNum: faker.finance.account(),
+        status: "Active",
+      },
+      dateRange: "2020-2021"
     };
   });
 };
@@ -101,6 +127,19 @@ axios({
         prov: faker.address.state(),
         postal: faker.address.zipCodeByState(),
       },
+      id: {
+        idType: "Driver's License",
+        idNumber: faker.finance.routingNumber(),
+        idJuristiction: faker.address.state(),
+      },
+      accountInfo: {
+        locale: "Domestic",
+        institution: "TD",
+        transitNum: faker.finance.routingNumber(),
+        accountNum: faker.finance.account(),
+        status: "Active",
+      },
+      dateRange: "2020-2021"
     };
   }
 });
@@ -152,6 +191,7 @@ axios({
         accountNum: faker.finance.account(),
         status: "Active",
       },
+      dataRange: "2020-2021"
     };
   }
 });
@@ -197,6 +237,7 @@ axios({
         accountNum: faker.finance.account(),
         status: "Active",
       },
+      dateRange: "2020-2021"
     };
   }
 });
