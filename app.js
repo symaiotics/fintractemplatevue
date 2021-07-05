@@ -10,6 +10,10 @@ faker.locale = "en_CA";
 
 mongoose.connect('mongodb://localhost:27017/API_test', { useNewUrlParser: true, useUnifiedTopology: true });
 
+//Schemas
+var MSBSchema = require("./schemas/MSBEntity").MSBSchema;
+var personSchema = require("./schemas/personEntity").personEntity;
+
 // DB Models
 var MSB_Entity = mongoose.model("MSB_Entity", MSBSchema);
 var PersonEntity = mongoose.model("PersonEntity", personSchema);
