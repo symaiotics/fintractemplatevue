@@ -22,7 +22,8 @@ var personEntity = new mongoose.Schema({
         transitNum : String,
         accountNum : String,
         status : String
-    }
+    },
+    dateRange: String
 });
 
 module.exports = {
