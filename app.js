@@ -11,22 +11,21 @@ faker.locale = "en_CA";
 mongoose.connect('mongodb://localhost:27017/API_test', { useNewUrlParser: true, useUnifiedTopology: true });
 
 // Schemas
-var MSBSchema = require("./schemas/MSBEntity.js").MSBSchema;
+var msbSchema = require("./schemas/MSBEntity.js").msbSchema;
 var personSchema = require("./schemas/personEntity.js").personEntity;
 
 // DB Models
-var MSB_Entity = mongoose.model("MSB_Entity", MSBSchema);
+var MSB_Entity = mongoose.model("MSB_Entity", msbSchema);
 var PersonEntity = mongoose.model("PersonEntity", personSchema);
 
 // Dummy data to be add/remove from db (TESTING)
 var newMSB_Entity;
 var newPersonEntity;
 
-var data = "";
-var finalList = [];
+var consolidatedList = [];
 
 var masterListJSON = {
-	JSON_list: [],
+	jsonList: [],
 };
 
 const insertDataIntoMasterList = (data) => {
@@ -57,7 +56,7 @@ const insertDataIntoMasterList = (data) => {
 			dateRange: "2020-2021"
 		};
 
-		masterListJSON.JSON_list.push(entity);
+		masterListJSON.jsonList.push(entity);
 	}
 };
 
@@ -65,12 +64,12 @@ axios({
 	method: "get",
 	url: "https://www.international.gc.ca/world-monde/assets/office_docs/international_relations-relations_internationales/sanctions/sema-lmes.xml",
 }).then(function (response) {
-	data = JSON.parse(xmlParser.toJson(response.data));
+	var data = JSON.parse(xmlParser.toJson(response.data));
 	insertDataIntoMasterList(data);
+	consolidatedList = [...masterListJSON.jsonList];
 });
 
 let lteListData = [];
-let filteredData = [];
 
 const listLink = "https://laws-lois.justice.gc.ca/eng/XML/SOR-2017-233.xml";
 
@@ -113,6 +112,7 @@ axios({
 }).then(function (response) {
 	let initialList = JSON.parse(xmlParser.toJson(response.data)).feed.entry;
 	lteListData = cleanUpLTEList(initialList); //returns cleaned-up version of LTE List
+	consolidatedList = [...lteListData];
 });
 
 let regulationFilteredData = [];
@@ -159,7 +159,10 @@ axios({
 			dateRange: "2020-2021"
 		};
 	}
+	consolidatedList = [...regulationFilteredData];
 });
+
+var finalList = [];
 
 axios({
 	method: "get",
@@ -193,7 +196,7 @@ axios({
 				prov: faker.address.state(),
 				postal: faker.address.zipCodeByState(),
 			},
-			id: {
+			person_id: {
 				idType: "Driver's License",
 				idNumber: faker.finance.routingNumber(),
 				idJuristiction: faker.address.state(),
@@ -205,10 +208,13 @@ axios({
 				accountNum: faker.finance.account(),
 				status: "Active",
 			},
-			dataRange: "2020-2021"
+			dateRange: "2020-2021"
 		};
 	}
+	consolidatedList = [...finalList];
 });
+
+var filteredData = [];
 
 axios({
 	method: "get",
@@ -252,124 +258,24 @@ axios({
 			dateRange: "2020-2021"
 		};
 	}
+	consolidatedList = [...filteredData];
 });
 
 app.get("/", (req, res) => {
-	if (!res.headersSent)
-		res.status(200).send({
-			jSON_list: [
-				...filteredData,
-				...finalList,
-				...regulationFilteredData,
-				...lteListData,
-				...masterListJSON.JSON_list,
-			],
-		});
+	if (!res.headersSent) res.status(200).send({jSON_list: consolidatedList});
 });
 
 app.get("/addPersonEntity", (req, res) => {
-	newPersonEntity = new PersonEntity({
-		name: "John Cena",
-		date: "2021/02/02",
-		link: "www.bing.com",
-		address: {
-			streetNum: "13",
-			street: "Sunville Drive",
-			city: "Ottawa",
-			prov: "ON",
-			postal: "K4I9H5"
-		},
-		person_id: {
-			idType: "Driver's License",
-			idNumber: faker.finance.routingNumber(),
-			idJuristiction: faker.address.state()
-		},
-		accountInfo: {
-			locale: "Domestic",
-			institution: "TD",
-			transitNum: faker.finance.routingNumber(),
-			accountNum: faker.finance.account(),
-			status: "Active"
-		},
-		dateRange: "2020-2021"
-	});
+	newPersonEntity = new PersonEntity(consolidatedList[0]);
 
-	PersonEntity.insertMany(newPersonEntity, () => {
-		console.log("Added Person Entity!");
-		res.send("Added Person Entity!");
-	});
-});
-
-app.get("/addMSBEntity", (req, res) => {
-	newMSB_Entity = new MSB_Entity({
-		registrationNumber: "M08609375",
-		businessName: "ACCU-RATE CORPORATION",
-		registrationStatus: {
-			StatusDescriptionEnglish: "Expired",
-			StatusDescriptionFrench: "Expirée"
-		},
-		registrationDate: "2008-07-09",
-		expirationDate: "2017-01-06",
-		MsbOperateName: "ACCU-RATE",
-		phone: "6135965505",
-		webSiteAddress: "www.accu-rate.ca",
-		businessIncorporation: {
-			IncorporationNumber: "4131894",
-			IncorporationDate: "2003-01-01",
-			IncorporationJurisdictionDescriptionEnglish: "Federal (Canada)",
-			IncorporationJurisdictionDescriptionFrench: "Fédérale (Canada)"
-		},
-		businessActivity: [
-			{
-				ActivityDescriptionEnglish: "Foreign exchange dealing",
-				ActivityDescriptionFrench: "Opérations de change"
-			},
-			{
-				ActivityDescriptionEnglish: "Money transferring",
-				ActivityDescriptionFrench: "Transfert de fonds"
-			}
-		],
-		location: [
-			{
-				MainLocationIndicator: "1",
-				StreetAddress: "2573 CARLING AVENUE",
-				CityName: "OTTAWA",
-				AlphaProvinceCode: "ON",
-				PostalZipCode: "K2B7H7",
-				AlphaCountryCode: "CA"
-			}
-		],
-		agents: [
-			{
-				fullName: "AMAL  WARSAME",
-				agentLocation: [
-					{
-						MainLocationIndicator: "1",
-						StreetAddress: "407-357 HOSSMAN ST",
-						CityName: "KITCHENER",
-						AlphaProvinceCode: "ON",
-						PostalZipCode: "N2M3N5",
-						AlphaCountryCode: "CA"
-					}
-				],
-				agentBusinessActivity: [
-					{
-						ActivityDescriptionEnglish: "Foreign exchange dealing",
-						ActivityDescriptionFrench: "Opérations de change"
-					},
-					{
-						ActivityDescriptionEnglish: "Money transferring",
-						ActivityDescriptionFrench: "Transfert de fonds"
-					}
-				],
-				agentPhone: "5195701082"
-			}
-		]
-	});
-
-	MSB_Entity.insertMany(newMSB_Entity, () => {
-		console.log("Added MSB Entity!");
-		res.send("Added MSB Entity!");
+	PersonEntity.insertMany(newPersonEntity, (err) => {
+		if (err) {
+			console.log("Failed to add Person Entity.");
+			res.send(newPersonEntity);
+		} else {
+			console.log("Added Person Entity!");
+			res.send("Added Person Entity!");
+		}
 	});
 });
 
@@ -377,13 +283,6 @@ app.get("/deletePersonEntity", (req, res) => {
 	PersonEntity.deleteOne({ name: "John Cena" }, () => {
 		console.log("Deleted Person Entity!");
 		res.send("Deleted Person Entity!");
-	});
-});
-
-app.get("/deleteMSBEntity", (req, res) => {
-	MSB_Entity.deleteOne({ "registrationNumber": "M08609375" }, () => {
-		console.log("Deleted MSB Entity!");
-		res.send("Deleted MSB Entity!");
 	});
 });
 
