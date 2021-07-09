@@ -125,9 +125,14 @@ axios({
 	consolidatedList = [...regulationFilteredData];
 });
 
-var unlist = require("./api/unlist").finalList;
 
-consolidatedList = [...unlist];
+var unlist_request = require("./api/unlist").sendGetRequest;
+
+unlist_request.then((response) => {
+	var finalList = response;
+	//console.log(response);
+	consolidatedList = [...finalList]
+})
 
 var jfv_list = require("./api/jfv").filteredData;
 

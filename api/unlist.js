@@ -2,17 +2,13 @@ var axios = require('axios');
 var faker = require('faker');
 var xmlParser = require('xml2json');
 
-var masterListJSON = {
-	jsonList: [],
-};
 
 var finalList = [];
 
 
-const insertDataIntoMasterList = (data = response.data) => {
-
-
-	var result = JSON.parse(xmlParser.toJson(data));
+const insertDataIntoFinalList = (data) => {
+	
+	var result = data;
 
 	var filteredList = result.CONSOLIDATED_LIST.INDIVIDUALS.INDIVIDUAL;
 	//console.log(filteredList);
@@ -53,18 +49,23 @@ const insertDataIntoMasterList = (data = response.data) => {
 			dateRange: "2020-2021"
 		};
 
-        masterListJSON.jsonList.push(finalList);
 
     }
 };
-axios({
-    method: "get",
-    url: "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
-    }).then((response) => {
+
+
+const sendGetRequest = async () => {
+    try {
+        const response = await axios.get('https://scsanctions.un.org/resources/xml/en/consolidated.xml');
         var data = JSON.parse(xmlParser.toJson(response.data));
-        insertDataIntoMasterList(data);
-});
+		insertDataIntoFinalList(data);
+		return finalList
+    } catch (err) {
+        // Handle Error Here
+        console.error(err);
+    }
+};
 
 module.exports = {
-    finalList 
+    sendGetRequest: sendGetRequest()
 };
