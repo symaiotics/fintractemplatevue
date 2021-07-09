@@ -32,7 +32,7 @@ const addToList = async () => {
 	var lte_request = await require("./api/lte").sendGetRequest;
   	var unlist_request = await require("./api/unlist").sendGetRequest;
 
-	consolidatedList = [...ccas_request, ...reg_request, ...jfv_request, ...lte_request, unlist_request]
+	consolidatedList = [ccas_request, reg_request, jfv_request, lte_request, unlist_request]
 }
 
 app.get("/", async (req, res) => {
