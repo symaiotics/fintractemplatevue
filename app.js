@@ -25,23 +25,23 @@ var newPersonEntity;
 
 var consolidatedList = [];
 
-var reg_request = require("./api/regList").sendGetRequest;
+const addToList = async () => {
+	var ccas_request = await require("./api/ccas").sendGetRequest;
+	var reg_request = await require("./api/regList").sendGetRequest;
+	var jfv_request = await require("./api/jfv").sendGetRequest;
+	var lte_request = await require("./api/lte").sendGetRequest;
 
-reg_request.then((response) => {
-	consolidatedList = [...response]
-})
+	consolidatedList = [...ccas_request, ...reg_request, ...jfv_request, ...lte_request]
+}
 
-var ccas_request = require("./api/ccas").sendGetRequest;
-
-ccas_request.then((response) => {
-	consolidatedList = [...response]
-})
+// consolidatedList = [...reg_list, ...ccas_list]
 
 // var jfv_list = require("./api/jfv").filteredData;
 
 // consolidatedList = [...jfv_list];
 
 app.get("/", (req, res) => {
+	addToList()
 	if (!res.headersSent) res.status(200).send({jSON_list: consolidatedList});
 });
 
@@ -76,7 +76,6 @@ app.get ("/msb", async (req, res)=> {
     })
 
 }  )
-
 
 app.get ("/msb", async (req, res)=> {
     let limit =  req.query.limit;
