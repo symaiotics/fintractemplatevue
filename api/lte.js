@@ -2,6 +2,8 @@ var axios = require('axios');
 var faker = require('faker');
 var xmlParser = require('xml2json');
 
+faker.locale = "en_CA";
+
 const lteListLink = "https://www.publicsafety.gc.ca/cnt/_xml/lstd-ntts-eng.xml";
 
 const cleanUpLTEList = (list) => {

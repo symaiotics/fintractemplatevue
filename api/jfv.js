@@ -2,6 +2,8 @@ var axios = require('axios');
 var faker = require('faker');
 var xmlParser = require('xml2json');
 
+faker.locale = "en_CA";
+
 const listLink = "https://laws-lois.justice.gc.ca/eng/XML/SOR-2017-233.xml";
 
 var filteredData = [];

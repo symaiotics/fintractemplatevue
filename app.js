@@ -1,13 +1,7 @@
 let readFromFile = require ("./MSBRegistry").readFromFile
 var express = require("express");
 var app = express();
-
-var axios = require('axios');
-var xmlParser = require('xml2json');
 var mongoose = require("mongoose");
-var faker = require('faker');
-
-faker.locale = "en_CA";
 
 mongoose.connect('mongodb://localhost:27017/API_test', { useNewUrlParser: true, useUnifiedTopology: true });
 
