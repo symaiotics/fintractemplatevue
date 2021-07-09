@@ -25,6 +25,7 @@ var newPersonEntity;
 
 var consolidatedList = [];
 
+
 //var ccas_request = require("./api/ccas").sendGetRequest;
 var reg_request = require("./api/regList").sendGetRequest;
 
@@ -33,202 +34,60 @@ reg_request.then((response) => {
 	consolidatedList = [...response]
 })
 
-// ccas_request.then((response) => {
-// 	var ccas_list = response;
-// 	consolidatedList = [...response]
-// })
 
-// let lteListData = [];
+var ccas_request = require("./api/ccas").sendGetRequest;
 
-// const listLink = "https://laws-lois.justice.gc.ca/eng/XML/SOR-2017-233.xml";
+ccas_request.then((response) => {
+	var ccas_list = response;
+	consolidatedList = [...response]
+})
 
-// const lteListLink = "https://www.publicsafety.gc.ca/cnt/_xml/lstd-ntts-eng.xml";
+let lteListData = [];
 
-// const cleanUpLTEList = (list) => {
-// 	return list.map((element) => {
-// 		return {
-// 			name: element.title,
-// 			date: element.published,
-// 			link: lteListLink,
-// 			address: {
-// 				streetNum: faker.datatype.number(),
-// 				street: faker.address.streetName(),
-// 				city: faker.address.cityName(),
-// 				prov: faker.address.state(),
-// 				postal: faker.address.zipCodeByState(),
-// 			},
-// 			id: {
-// 				idType: "Driver's License",
-// 				idNumber: faker.finance.routingNumber(),
-// 				idJuristiction: faker.address.state(),
-// 			},
-// 			accountInfo: {
-// 				locale: "Domestic",
-// 				institution: "TD",
-// 				transitNum: faker.finance.routingNumber(),
-// 				accountNum: faker.finance.account(),
-// 				status: "Active",
-// 			},
-// 			dateRange: "2020-2021"
-// 		};
-// 	});
-// };
+const listLink = "https://laws-lois.justice.gc.ca/eng/XML/SOR-2017-233.xml";
 
-// //GET LTE List XML
-// axios({
-// 	method: "get",
-// 	url: lteListLink,
-// }).then(function (response) {
-// 	let initialList = JSON.parse(xmlParser.toJson(response.data)).feed.entry;
-// 	lteListData = cleanUpLTEList(initialList); //returns cleaned-up version of LTE List
-// 	consolidatedList = [...lteListData];
-// });
+const lteListLink = "https://www.publicsafety.gc.ca/cnt/_xml/lstd-ntts-eng.xml";
 
-// let regulationFilteredData = [];
+const cleanUpLTEList = (list) => {
+	return list.map((element) => {
+		return {
+			name: element.title,
+			date: element.published,
+			link: lteListLink,
+			address: {
+				streetNum: faker.datatype.number(),
+				street: faker.address.streetName(),
+				city: faker.address.cityName(),
+				prov: faker.address.state(),
+				postal: faker.address.zipCodeByState(),
+			},
+			id: {
+				idType: "Driver's License",
+				idNumber: faker.finance.routingNumber(),
+				idJuristiction: faker.address.state(),
+			},
+			accountInfo: {
+				locale: "Domestic",
+				institution: "TD",
+				transitNum: faker.finance.routingNumber(),
+				accountNum: faker.finance.account(),
+				status: "Active",
+			},
+			dateRange: "2020-2021"
+		};
+	});
+};
 
-// const regulationListLink = "https://laws-lois.justice.gc.ca/eng/XML/SOR-2002-284.xml";
 
-// //GET Regulation List
-// axios({
-// 	method: "get",
-// 	url: regulationListLink,
-// }).then(function (response) {
-// 	let fetchData = JSON.parse(xmlParser.toJson(response.data));
-// 	//console.log(response);
-// 	let filteredList = fetchData["Regulation"]["Body"]["Section"][0]["List"]["Item"];
 
-// 	for (let i = 0; i < filteredList.length; i++) {
-// 		let temp = filteredList[i]["Text"];
-// 		let text = temp.toString();
-// 		let group_name = text.split(" (also")[0];
-// 		let description = text.split(" (also")[1];
-// 		regulationFilteredData[i] = {
-// 			name: group_name,
-// 			date: filteredList[0]["lims:inforce-start-date"],
-// 			link: regulationListLink,
-// 			address: {
-// 				streetNum: faker.datatype.number(),
-// 				street: faker.address.streetName(),
-// 				city: faker.address.cityName(),
-// 				prov: faker.address.state(),
-// 				postal: faker.address.zipCodeByState(),
-// 			},
-// 			id: {
-// 				idType: "Driver's License",
-// 				idNumber: faker.finance.routingNumber(),
-// 				idJuristiction: faker.address.state(),
-// 			},
-// 			accountInfo: {
-// 				locale: "Domestic",
-// 				institution: "TD",
-// 				transitNum: faker.finance.routingNumber(),
-// 				accountNum: faker.finance.account(),
-// 				status: "Active",
-// 			},
-// 			dateRange: "2020-2021"
-// 		};
-// 	}
-// 	consolidatedList = [...regulationFilteredData];
-// });
+var unlist = require("./api/unlist").finalList;
 
-// var finalList = [];
+consolidatedList = [...unlist];
 
-// axios({
-// 	method: "get",
-// 	url: "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
-// }).then(function (response) {
-// 	data = response.data;
+var jfv_list = require("./api/jfv").filteredData;
 
-// 	var result = JSON.parse(xmlParser.toJson(data));
+consolidatedList = [...jfv_list];
 
-// 	var filteredList = result.CONSOLIDATED_LIST.INDIVIDUALS.INDIVIDUAL;
-// 	//console.log(filteredList);
-// 	for (i = 0; i < filteredList.length; i++) {
-// 		var name = filteredList[i].FIRST_NAME +
-// 			" " +
-// 			filteredList[i].SECOND_NAME +
-// 			" " +
-// 			filteredList[i].THIRD_NAME;
-// 		var document = filteredList[i].INDIVIDUAL_DOCUMENT.TYPE_OF_DOCUMENT +
-// 			" :" +
-// 			filteredList[i].INDIVIDUAL_DOCUMENT.NUMBER;
-// 		var dob = filteredList[i].INDIVIDUAL_DATE_OF_BIRTH.DATE;
-// 		var address = filteredList[i].INDIVIDUAL_ADDRESS.COUNTRY;
-// 		finalList[i] = {
-// 			name: name,
-// 			date: dob,
-// 			link: "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
-// 			address: {
-// 				streetNum: faker.datatype.number(),
-// 				street: faker.address.streetName(),
-// 				city: faker.address.cityName(),
-// 				prov: faker.address.state(),
-// 				postal: faker.address.zipCodeByState(),
-// 			},
-// 			person_id: {
-// 				idType: "Driver's License",
-// 				idNumber: faker.finance.routingNumber(),
-// 				idJuristiction: faker.address.state(),
-// 			},
-// 			accountInfo: {
-// 				locale: "Domestic",
-// 				institution: "TD",
-// 				transitNum: faker.finance.routingNumber(),
-// 				accountNum: faker.finance.account(),
-// 				status: "Active",
-// 			},
-// 			dateRange: "2020-2021"
-// 		};
-// 	}
-// 	consolidatedList = [...finalList];
-// });
-
-// var filteredData = [];
-
-// axios({
-// 	method: "get",
-// 	url: listLink,
-// }).then(function (response) {
-// 	data = response.data;
-
-// 	var xmlParser = require("xml2json");
-// 	var result = JSON.parse(xmlParser.toJson(data));
-// 	//var result = xmlParser.xml2json(data, {compact: false, spaces: 4});
-// 	// console.log(result);
-// 	var filteredList = result.Regulation.Schedule[0].List.Item;
-
-// 	for (i = 0; i < filteredList.length; i++) {
-// 		var s = filteredList[i].Text;
-// 		s = s.split(" (")[0];
-
-// 		filteredData[i] = {
-// 			name: s,
-// 			date: filteredList[i]["lims:inforce-start-date"],
-// 			link: listLink,
-// 			address: {
-// 				streetNum: faker.datatype.number(),
-// 				street: faker.address.streetName(),
-// 				city: faker.address.cityName(),
-// 				prov: faker.address.state(),
-// 				postal: faker.address.zipCodeByState(),
-// 			},
-// 			id: {
-// 				idType: "Driver's License",
-// 				idNumber: faker.finance.routingNumber(),
-// 				idJuristiction: faker.address.state(),
-// 			},
-// 			accountInfo: {
-// 				locale: "Domestic",
-// 				institution: "TD",
-// 				transitNum: faker.finance.routingNumber(),
-// 				accountNum: faker.finance.account(),
-// 				status: "Active",
-// 			},
-// 			dateRange: "2020-2021"
-// 		};
-// 	}
-// 	consolidatedList = [...filteredData];
-// });
 
 app.get("/", (req, res) => {
 	if (!res.headersSent) res.status(200).send({jSON_list: consolidatedList});
