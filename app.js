@@ -30,15 +30,10 @@ const addToList = async () => {
 	var reg_request = await require("./api/regList").sendGetRequest;
 	var jfv_request = await require("./api/jfv").sendGetRequest;
 	var lte_request = await require("./api/lte").sendGetRequest;
+  var unlist_request = await require("./api/unlist").sendGetRequest;
 
 	consolidatedList = [...ccas_request, ...reg_request, ...jfv_request, ...lte_request]
 }
-
-// consolidatedList = [...reg_list, ...ccas_list]
-
-// var jfv_list = require("./api/jfv").filteredData;
-
-// consolidatedList = [...jfv_list];
 
 app.get("/", async (req, res) => {
 	await addToList()
@@ -75,19 +70,7 @@ app.get ("/msb", async (req, res)=> {
         msb_data: msbData.slice (0,parseInt (limit))
     })
 
-}  )
-
-app.get ("/msb", async (req, res)=> {
-    let limit =  req.query.limit;
-    let msbData = await readFromFile ()
-    limit = limit || msbData.length //if limit is provided then limit is initiated else its the length of the MSBRegistry
-
-    if (!res.headersSent) res.status(200).send({ 
-        msb_data: msbData.slice (0,parseInt (limit))
-    })
-
-}  )
-
+});
 
 //To start server
 app.listen(3000, process.env.IP, function () {
