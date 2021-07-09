@@ -40,8 +40,8 @@ const addToList = async () => {
 
 // consolidatedList = [...jfv_list];
 
-app.get("/", (req, res) => {
-	addToList()
+app.get("/", async (req, res) => {
+	await addToList()
 	if (!res.headersSent) res.status(200).send({jSON_list: consolidatedList});
 });
 
