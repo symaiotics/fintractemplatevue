@@ -25,69 +25,21 @@ var newPersonEntity;
 
 var consolidatedList = [];
 
-
-//var ccas_request = require("./api/ccas").sendGetRequest;
 var reg_request = require("./api/regList").sendGetRequest;
 
 reg_request.then((response) => {
-	var reg_list = response;
 	consolidatedList = [...response]
 })
-
 
 var ccas_request = require("./api/ccas").sendGetRequest;
 
 ccas_request.then((response) => {
-	var ccas_list = response;
 	consolidatedList = [...response]
 })
 
-let lteListData = [];
+// var jfv_list = require("./api/jfv").filteredData;
 
-const listLink = "https://laws-lois.justice.gc.ca/eng/XML/SOR-2017-233.xml";
-
-const lteListLink = "https://www.publicsafety.gc.ca/cnt/_xml/lstd-ntts-eng.xml";
-
-const cleanUpLTEList = (list) => {
-	return list.map((element) => {
-		return {
-			name: element.title,
-			date: element.published,
-			link: lteListLink,
-			address: {
-				streetNum: faker.datatype.number(),
-				street: faker.address.streetName(),
-				city: faker.address.cityName(),
-				prov: faker.address.state(),
-				postal: faker.address.zipCodeByState(),
-			},
-			id: {
-				idType: "Driver's License",
-				idNumber: faker.finance.routingNumber(),
-				idJuristiction: faker.address.state(),
-			},
-			accountInfo: {
-				locale: "Domestic",
-				institution: "TD",
-				transitNum: faker.finance.routingNumber(),
-				accountNum: faker.finance.account(),
-				status: "Active",
-			},
-			dateRange: "2020-2021"
-		};
-	});
-};
-
-
-
-var unlist = require("./api/unlist").finalList;
-
-consolidatedList = [...unlist];
-
-var jfv_list = require("./api/jfv").filteredData;
-
-consolidatedList = [...jfv_list];
-
+// consolidatedList = [...jfv_list];
 
 app.get("/", (req, res) => {
 	if (!res.headersSent) res.status(200).send({jSON_list: consolidatedList});
