@@ -65,6 +65,12 @@ const cleanUpLTEList = (list) => {
 	});
 };
 
+var jfv_request = require("./api/jfv").sendGetRequest;
+
+jfv_request.then((response) => {
+	consolidatedList = [...response]
+})
+
 //GET LTE List XML
 axios({
 	method: "get",
@@ -124,102 +130,7 @@ axios({
 
 var finalList = [];
 
-axios({
-	method: "get",
-	url: "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
-}).then(function (response) {
-	data = response.data;
 
-	var result = JSON.parse(xmlParser.toJson(data));
-
-	var filteredList = result.CONSOLIDATED_LIST.INDIVIDUALS.INDIVIDUAL;
-	//console.log(filteredList);
-	for (i = 0; i < filteredList.length; i++) {
-		var name = filteredList[i].FIRST_NAME +
-			" " +
-			filteredList[i].SECOND_NAME +
-			" " +
-			filteredList[i].THIRD_NAME;
-		var document = filteredList[i].INDIVIDUAL_DOCUMENT.TYPE_OF_DOCUMENT +
-			" :" +
-			filteredList[i].INDIVIDUAL_DOCUMENT.NUMBER;
-		var dob = filteredList[i].INDIVIDUAL_DATE_OF_BIRTH.DATE;
-		var address = filteredList[i].INDIVIDUAL_ADDRESS.COUNTRY;
-		finalList[i] = {
-			name: name,
-			date: dob,
-			link: "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
-			address: {
-				streetNum: faker.datatype.number(),
-				street: faker.address.streetName(),
-				city: faker.address.cityName(),
-				prov: faker.address.state(),
-				postal: faker.address.zipCodeByState(),
-			},
-			person_id: {
-				idType: "Driver's License",
-				idNumber: faker.finance.routingNumber(),
-				idJuristiction: faker.address.state(),
-			},
-			accountInfo: {
-				locale: "Domestic",
-				institution: "TD",
-				transitNum: faker.finance.routingNumber(),
-				accountNum: faker.finance.account(),
-				status: "Active",
-			},
-			dateRange: "2020-2021"
-		};
-	}
-	consolidatedList = [...finalList];
-});
-
-var filteredData = [];
-
-axios({
-	method: "get",
-	url: listLink,
-}).then(function (response) {
-	data = response.data;
-
-	var xmlParser = require("xml2json");
-	var result = JSON.parse(xmlParser.toJson(data));
-	//var result = xmlParser.xml2json(data, {compact: false, spaces: 4});
-	// console.log(result);
-	var filteredList = result.Regulation.Schedule[0].List.Item;
-
-	for (i = 0; i < filteredList.length; i++) {
-		var s = filteredList[i].Text;
-		s = s.split(" (")[0];
-
-		filteredData[i] = {
-			name: s,
-			date: filteredList[i]["lims:inforce-start-date"],
-			link: listLink,
-			address: {
-				streetNum: faker.datatype.number(),
-				street: faker.address.streetName(),
-				city: faker.address.cityName(),
-				prov: faker.address.state(),
-				postal: faker.address.zipCodeByState(),
-			},
-			id: {
-				idType: "Driver's License",
-				idNumber: faker.finance.routingNumber(),
-				idJuristiction: faker.address.state(),
-			},
-			accountInfo: {
-				locale: "Domestic",
-				institution: "TD",
-				transitNum: faker.finance.routingNumber(),
-				accountNum: faker.finance.account(),
-				status: "Active",
-			},
-			dateRange: "2020-2021"
-		};
-	}
-	consolidatedList = [...filteredData];
-});
 
 app.get("/", (req, res) => {
 	if (!res.headersSent) res.status(200).send({jSON_list: consolidatedList});

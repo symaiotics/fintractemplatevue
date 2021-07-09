@@ -6,15 +6,8 @@ const listLink = "https://laws-lois.justice.gc.ca/eng/XML/SOR-2017-233.xml";
 
 var filteredData = [];
 
-axios({
-	method: "get",
-	url: listLink,
-}).then(function (response) {
-	data = response.data;
-
-	var xmlParser = require("xml2json");
     
-	var result = JSON.parse(xmlParser.toJson(data));
+const insertDataIntoMasterList = (data) => {
 	
 	var filteredList = result.Regulation.Schedule[0].List.Item;
 
@@ -48,8 +41,21 @@ axios({
 			dateRange: "2020-2021"
 		};
 	}
-});
+}
+
+const sendGetRequest = async () => {
+    try {
+        const response = await axios.get(listLink);
+        var data = JSON.parse(xmlParser.toJson(response.data));
+		insertDataIntoMasterList(data);
+		return filteredData
+    } catch (err) {
+        // Handle Error Here
+        console.error(err);
+    }
+};
+
 
 module.exports = {
-    filteredData 
+    sendGetRequest: sendGetRequest() 
 };
