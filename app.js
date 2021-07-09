@@ -26,9 +26,9 @@ var newPersonEntity;
 var consolidatedList = [];
 
 var ccas_list = require("./api/ccas").masterListJSON;
-var reg_list = require("./api/regList").regulationListLink;
+var reg_list = require("./api/regList").regulationFilteredData;
 
-consolidatedList = [...ccas_list.jsonList,...reg_list.jSONList];
+consolidatedList = [...ccas_list.jsonList,...reg_list.regulationFilteredData];
 
 let lteListData = [];
 

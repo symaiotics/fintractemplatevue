@@ -50,5 +50,5 @@ axios({
 });
 
 module.exports = {
-    regulationListLink
+    regulationFilteredData
 };
