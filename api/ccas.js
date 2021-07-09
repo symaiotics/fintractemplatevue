@@ -38,14 +38,18 @@ const insertDataIntoMasterList = (data) => {
 	}
 };
 
-axios({
-	method: "get",
-	url: "https://www.international.gc.ca/world-monde/assets/office_docs/international_relations-relations_internationales/sanctions/sema-lmes.xml",
-}).then((response) => {
-	var data = JSON.parse(xmlParser.toJson(response.data));
-	insertDataIntoMasterList(data);
-});
+const sendGetRequest = async () => {
+    try {
+        const response = await axios.get('https://www.international.gc.ca/world-monde/assets/office_docs/international_relations-relations_internationales/sanctions/sema-lmes.xml');
+        var data = JSON.parse(xmlParser.toJson(response.data));
+		insertDataIntoMasterList(data);
+		return masterListJSON.jsonList
+    } catch (err) {
+        // Handle Error Here
+        console.error(err);
+    }
+};
 
 module.exports = {
-    masterListJSON 
+    sendGetRequest: sendGetRequest()
 };

@@ -25,9 +25,12 @@ var newPersonEntity;
 
 var consolidatedList = [];
 
-var ccas_list = require("./api/ccas");
+var ccas_request = require("./api/ccas").sendGetRequest;
 
-consolidatedList = [...ccas_list.jsonList];
+ccas_request.then((response) => {
+	var ccas_list = response;
+	consolidatedList = [...response]
+})
 
 let lteListData = [];
 
@@ -122,15 +125,11 @@ axios({
 	consolidatedList = [...regulationFilteredData];
 });
 
-var finalList = [];
+var unlist = require("./api/unlist").finalList;
 
+consolidatedList = [...unlist];
 
-
-var unlist = require("./api/unlist").masterListJSON;
-
-consolidatedList = [...unlist.jsonList];
-
-var jfv_list = require("./api/jfv");
+var jfv_list = require("./api/jfv").filteredData;
 
 consolidatedList = [...jfv_list];
 
