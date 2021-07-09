@@ -25,7 +25,7 @@ var newPersonEntity;
 
 var consolidatedList = [];
 
-var ccas_list = require("./api/ccas").masterListJSON;
+var ccas_list = require("./api/ccas");
 
 consolidatedList = [...ccas_list.jsonList];
 
@@ -174,52 +174,9 @@ axios({
 	consolidatedList = [...finalList];
 });
 
-var filteredData = [];
+var jfv_list = require("./api/jfv");
 
-axios({
-	method: "get",
-	url: listLink,
-}).then(function (response) {
-	data = response.data;
-
-	var xmlParser = require("xml2json");
-	var result = JSON.parse(xmlParser.toJson(data));
-	//var result = xmlParser.xml2json(data, {compact: false, spaces: 4});
-	// console.log(result);
-	var filteredList = result.Regulation.Schedule[0].List.Item;
-
-	for (i = 0; i < filteredList.length; i++) {
-		var s = filteredList[i].Text;
-		s = s.split(" (")[0];
-
-		filteredData[i] = {
-			name: s,
-			date: filteredList[i]["lims:inforce-start-date"],
-			link: listLink,
-			address: {
-				streetNum: faker.datatype.number(),
-				street: faker.address.streetName(),
-				city: faker.address.cityName(),
-				prov: faker.address.state(),
-				postal: faker.address.zipCodeByState(),
-			},
-			id: {
-				idType: "Driver's License",
-				idNumber: faker.finance.routingNumber(),
-				idJuristiction: faker.address.state(),
-			},
-			accountInfo: {
-				locale: "Domestic",
-				institution: "TD",
-				transitNum: faker.finance.routingNumber(),
-				accountNum: faker.finance.account(),
-				status: "Active",
-			},
-			dateRange: "2020-2021"
-		};
-	}
-	consolidatedList = [...filteredData];
-});
+consolidatedList = [...jfv_list];
 
 app.get("/", (req, res) => {
 	if (!res.headersSent) res.status(200).send({jSON_list: consolidatedList});
