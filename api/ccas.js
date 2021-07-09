@@ -1,5 +1,6 @@
 var axios = require('axios');
 var faker = require('faker');
+var xmlParser = require('xml2json');
 
 var masterListJSON = {
 	jsonList: [],

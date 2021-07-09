@@ -26,7 +26,7 @@ var consolidatedList = [];
 
 var ccas_list = require("./api/ccas").masterListJSON;
 
-consolidatedList = [...ccas_list];
+consolidatedList = [...ccas_list.jsonList];
 
 let lteListData = [];
 
