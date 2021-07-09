@@ -25,6 +25,16 @@ var newPersonEntity;
 
 var consolidatedList = [];
 
+
+//var ccas_request = require("./api/ccas").sendGetRequest;
+var reg_request = require("./api/regList").sendGetRequest;
+
+reg_request.then((response) => {
+	var reg_list = response;
+	consolidatedList = [...response]
+})
+
+
 var ccas_request = require("./api/ccas").sendGetRequest;
 
 ccas_request.then((response) => {
@@ -68,62 +78,7 @@ const cleanUpLTEList = (list) => {
 	});
 };
 
-//GET LTE List XML
-axios({
-	method: "get",
-	url: lteListLink,
-}).then(function (response) {
-	let initialList = JSON.parse(xmlParser.toJson(response.data)).feed.entry;
-	lteListData = cleanUpLTEList(initialList); //returns cleaned-up version of LTE List
-	consolidatedList = [...lteListData];
-});
 
-let regulationFilteredData = [];
-
-const regulationListLink = "https://laws-lois.justice.gc.ca/eng/XML/SOR-2002-284.xml";
-
-//GET Regulation List
-axios({
-	method: "get",
-	url: regulationListLink,
-}).then(function (response) {
-	let fetchData = JSON.parse(xmlParser.toJson(response.data));
-	//console.log(response);
-	let filteredList = fetchData["Regulation"]["Body"]["Section"][0]["List"]["Item"];
-
-	for (let i = 0; i < filteredList.length; i++) {
-		let temp = filteredList[i]["Text"];
-		let text = temp.toString();
-		let group_name = text.split(" (also")[0];
-		let description = text.split(" (also")[1];
-		regulationFilteredData[i] = {
-			name: group_name,
-			date: filteredList[0]["lims:inforce-start-date"],
-			link: regulationListLink,
-			address: {
-				streetNum: faker.datatype.number(),
-				street: faker.address.streetName(),
-				city: faker.address.cityName(),
-				prov: faker.address.state(),
-				postal: faker.address.zipCodeByState(),
-			},
-			id: {
-				idType: "Driver's License",
-				idNumber: faker.finance.routingNumber(),
-				idJuristiction: faker.address.state(),
-			},
-			accountInfo: {
-				locale: "Domestic",
-				institution: "TD",
-				transitNum: faker.finance.routingNumber(),
-				accountNum: faker.finance.account(),
-				status: "Active",
-			},
-			dateRange: "2020-2021"
-		};
-	}
-	consolidatedList = [...regulationFilteredData];
-});
 
 var unlist = require("./api/unlist").finalList;
 
@@ -132,6 +87,7 @@ consolidatedList = [...unlist];
 var jfv_list = require("./api/jfv").filteredData;
 
 consolidatedList = [...jfv_list];
+
 
 app.get("/", (req, res) => {
 	if (!res.headersSent) res.status(200).send({jSON_list: consolidatedList});
