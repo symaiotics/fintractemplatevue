@@ -41,42 +41,10 @@ const fakePeople = (numOfFakePersons)=>{
         dateRange: "2020-2021"
     };
     }
-    //finalListPersonEntities = JSON.parse(completeListPersonEntities);
     return completeListPersonEntities;
 }
 
 let personEntities = fakePeople(5000);
-
-// const insertDataIntoMasterList = (data) => {
-//     for (elem of data["data-set"].record) {
-//         var entity = { name: elem.Entity ? elem.Entity : elem.GivenName +  " " + elem.LastName,
-//                        date: elem.DateOfBirth,
-//                        link : "https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/consolidated-consolide.aspx?lang=eng",
-//                        "address": {
-//                         streetNum: faker.datatype.number(),
-//                         street: faker.address.streetName(),
-//                         city: faker.address.cityName(),
-//                         prov: faker.address.state(),
-//                         postal: faker.address.zipCodeByState()
-//                     },
-//                 };
-
-//         masterListJSON.JSON_list.push(entity);
-//     }
-// }
-
-// axios({
-//     method: 'get',
-//     url: 'https://www.international.gc.ca/world-monde/assets/office_docs/international_relations-relations_internationales/sanctions/sema-lmes.xml'
-//     })
-//     .then(function (response) {
-//         data = JSON.parse(xmlParser.toJson(response.data));
-//         insertDataIntoMasterList(data);
-//     });
-
-
-
-
 
 
 app.get("/", (req, res) => {
