@@ -3,7 +3,7 @@ var express = require("express");
 var app = express();
 var mongoose = require("mongoose");
 
-mongoose.connect('mongodb://localhost:27017/API_test', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb://10.0.0.4:27017/mongodb_test', { useNewUrlParser: true, useUnifiedTopology: true });
 
 // Schemas
 var msbSchema = require("./schemas/MSBEntity.js").msbSchema;
