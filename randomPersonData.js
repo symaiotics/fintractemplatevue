@@ -3,14 +3,16 @@ var app = express();
 var axios = require('axios');
 var xmlParser = require('xml2json');
 var faker = require('faker');
+var mongoose = require("mongoose")
+let ENTITY = require("./entityValidation.js")
+
+
 faker.locale = "en_CA";
 
 var completeListPersonEntities = [];
 var finalListPersonEntities = [];
 
-var masterListJSON = {
-    JSON_list: []
-};
+
 
 
 const fakePeople = (numOfFakePersons)=>{
