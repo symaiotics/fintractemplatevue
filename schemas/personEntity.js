@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 
 var personEntity = new mongoose.Schema({
     name: {type: String, required: true},
-    date: {type: Date, required: true},
+    date: {type: String, required: true},
     link: {type: String, required: true},
     address: {
         streetNum: {type: Number, required: true},

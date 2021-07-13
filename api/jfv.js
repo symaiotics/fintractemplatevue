@@ -23,7 +23,7 @@ const sendGetRequest = async () => {
 
 			filteredData[i] = {
 				name: s,
-				date: filteredList[i]["lims:inforce-start-date"],
+				date: filteredList[i]["lims:inforce-start-date"] || faker.date.past(),
 				link: listLink,
 				address: {
 					streetNum: faker.datatype.number(),
@@ -32,7 +32,7 @@ const sendGetRequest = async () => {
 					prov: faker.address.state(),
 					postal: faker.address.zipCodeByState(),
 				},
-				id: {
+				person_id: {
 					idType: "Driver's License",
 					idNumber: faker.finance.routingNumber(),
 					idJuristiction: faker.address.state(),

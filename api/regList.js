@@ -24,7 +24,7 @@ const sendGetRequest = async () => {
 				let description = text.split(" (also")[1];
 				regulationFilteredData[i] = {
 					name: group_name,
-					date: filteredList[0]["lims:inforce-start-date"],
+					date: filteredList[0]["lims:inforce-start-date"] || faker.date.past(),
 					link: regulationListLink,
 					address: {
 						streetNum: faker.datatype.number(),
@@ -33,7 +33,7 @@ const sendGetRequest = async () => {
 						prov: faker.address.state(),
 						postal: faker.address.zipCodeByState(),
 					},
-					id: {
+					person_id: {
 						idType: "Driver's License",
 						idNumber: faker.finance.routingNumber(),
 						idJuristiction: faker.address.state(),

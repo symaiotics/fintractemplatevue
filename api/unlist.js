@@ -6,7 +6,6 @@ faker.locale = "en_CA";
 
 var finalList = [];
 
-
 const insertDataIntoFinalList = (data) => {
 	
 	var result = data;
@@ -26,7 +25,7 @@ const insertDataIntoFinalList = (data) => {
 		var address = filteredList[i].INDIVIDUAL_ADDRESS.COUNTRY;
 		finalList[i] = {
 			name: name,
-			date: dob,
+			date: dob || faker.date.past(),
 			link: "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
 			address: {
 				streetNum: faker.datatype.number(),

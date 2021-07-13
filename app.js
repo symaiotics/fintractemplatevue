@@ -3,18 +3,15 @@ var express = require("express");
 var app = express();
 var mongoose = require("mongoose");
 
-mongoose.connect('mongodb://10.0.0.4:27017/mongodb_test', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb://localhost:27017/API_test', { useNewUrlParser: true, useUnifiedTopology: true });
 
 // Schemas
-var msbSchema = require("./schemas/MSBEntity.js").msbSchema;
 var personSchema = require("./schemas/personEntity.js").personEntity;
 
 // DB Models
-var MSB_Entity = mongoose.model("MSB_Entity", msbSchema);
 var PersonEntity = mongoose.model("PersonEntity", personSchema);
 
 // Dummy data to be add/remove from db (TESTING)
-var newMSB_Entity;
 var newPersonEntity;
 
 var consolidatedList = [];
@@ -26,32 +23,24 @@ const addToList = async () => {
 	var lte_request = await require("./api/lte").sendGetRequest;
   	var unlist_request = await require("./api/unlist").sendGetRequest;
 
-	consolidatedList = [ccas_request, reg_request, jfv_request, lte_request, unlist_request]
+	consolidatedList = [...ccas_request, ...reg_request, ...jfv_request, ...lte_request, ...unlist_request]
 }
 
+addToList()
+
 app.get("/", async (req, res) => {
-	await addToList()
 	if (!res.headersSent) res.status(200).send({jSON_list: consolidatedList});
 });
 
 app.get("/addPersonEntity", (req, res) => {
-	newPersonEntity = new PersonEntity(consolidatedList[0]);
-
-	PersonEntity.insertMany(newPersonEntity, (err) => {
+	PersonEntity.insertMany(consolidatedList, (err) => {
 		if (err) {
 			console.log("Failed to add Person Entity.");
-			res.send(newPersonEntity);
+			res.send("Failed to add Person Entity.");
 		} else {
 			console.log("Added Person Entity!");
 			res.send("Added Person Entity!");
 		}
-	});
-});
-
-app.get("/deletePersonEntity", (req, res) => {
-	PersonEntity.deleteOne({ name: "John Cena" }, () => {
-		console.log("Deleted Person Entity!");
-		res.send("Deleted Person Entity!");
 	});
 });
 

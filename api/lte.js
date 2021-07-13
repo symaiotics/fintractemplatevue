@@ -10,7 +10,7 @@ const cleanUpLTEList = (list) => {
 	return list.map((element) => {
 		return {
 			name: element.title,
-			date: element.published,
+			date: element.published || faker.date.past(),
 			link: lteListLink,
 			address: {
 				streetNum: faker.datatype.number(),
@@ -19,7 +19,7 @@ const cleanUpLTEList = (list) => {
 				prov: faker.address.state(),
 				postal: faker.address.zipCodeByState(),
 			},
-			id: {
+			person_id: {
 				idType: "Driver's License",
 				idNumber: faker.finance.routingNumber(),
 				idJuristiction: faker.address.state(),

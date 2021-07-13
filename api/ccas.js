@@ -12,7 +12,7 @@ const insertDataIntoMasterList = (data) => {
 	for (elem of data["data-set"].record) {
 		var entity = {
 			name: elem.Entity ? elem.Entity : elem.GivenName + " " + elem.LastName,
-			date: elem.DateOfBirth,
+			date: elem.DateOfBirth || faker.date.past(),
 			link: "https://www.international.gc.ca/world-monde/international_relations-relations_internationales/sanctions/consolidated-consolide.aspx?lang=eng",
 			address: {
 				streetNum: faker.datatype.number(),
@@ -21,7 +21,7 @@ const insertDataIntoMasterList = (data) => {
 				prov: faker.address.state(),
 				postal: faker.address.zipCodeByState(),
 			},
-			id: {
+			person_id: {
 				idType: "Driver's License",
 				idNumber: faker.finance.routingNumber(),
 				idJuristiction: faker.address.state(),
